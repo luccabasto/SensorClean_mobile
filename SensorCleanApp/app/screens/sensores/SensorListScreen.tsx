@@ -1,16 +1,8 @@
-import { StackNavigationProp } from '@react-navigation/stack';
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FlatList, Text, TouchableOpacity, View } from "react-native";
-import Loader from "../components/Loader";
-import SensorCard from "../components/SensorCard";
-import { getSensores } from "../services/api";
-
-type RootStackParamList = {
-  SensorForm: undefined;
-  Detalhes: { id: number };
-};
-
-type SensorListScreenNavigationProp = StackNavigationProp<RootStackParamList, 'SensorForm'>;
+import Loader from "../../components/Loader";
+import SensorCard from "../../components/SensorCard";
+import { getSensores } from "../../services/api";
 
 type Sensor = {
   id: number;
@@ -18,11 +10,12 @@ type Sensor = {
   status: string;
 };
 
-type Props = {
-  navigation: SensorListScreenNavigationProp;
-};
+interface Props {
+  onCreate: () => void;
+  onDetail: (id: number) => void;
+}
 
-export default function SensorListScreen({ navigation }: Props) {
+export default function SensorListScreen({ onCreate, onDetail }: Props) {
   const [sensores, setSensores] = useState<Sensor[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -38,6 +31,10 @@ export default function SensorListScreen({ navigation }: Props) {
     }
   }
 
+  useEffect(() => {
+    carregarSensores();
+  }, []);
+
   if (loading) return <Loader />;
 
   return (
@@ -50,7 +47,7 @@ export default function SensorListScreen({ navigation }: Props) {
           marginBottom: 16,
           alignItems: "center"
         }}
-        onPress={() => navigation.navigate("SensorForm")}
+        onPress={onCreate}
       >
         <Text style={{ color: "#fff", fontWeight: "bold", fontSize: 18 }}>Novo Sensor</Text>
       </TouchableOpacity>
@@ -60,10 +57,14 @@ export default function SensorListScreen({ navigation }: Props) {
         renderItem={({ item }) => (
           <SensorCard
             sensor={item}
-            onPress={() => navigation.navigate("Detalhes", { id: item.id })}
+            onPress={() => onDetail(item.id)}
           />
         )}
-        ListEmptyComponent={<Text style={{ color: "#9CA3AF", marginTop: 32 }}>Nenhum sensor cadastrado.</Text>}
+        ListEmptyComponent={
+          <Text style={{ color: "#9CA3AF", marginTop: 32 }}>
+            Nenhum sensor cadastrado.
+          </Text>
+        }
       />
     </View>
   );

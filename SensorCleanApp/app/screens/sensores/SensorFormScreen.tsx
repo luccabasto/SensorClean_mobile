@@ -1,35 +1,42 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
-import Loader from "../components/Loader";
-import { createSensor, updateSensor } from "../services/api";
+import Loader from "../../components/Loader";
+import { createSensor, getSensor, updateSensor } from "../../services/api";
 
+interface Sensor {
+  id?: number;
+  nome: string;
+  status: string;
+  localizacao: string;
+}
 
-type RootStackParamList = {
-  SensorFormScreen: { sensor?: { id: string; nome: string; status: string; localizacao: string } };
-};
+interface Props {
+  sensorId?: number | null;   // null para novo, número para editar
+  onCancel: () => void;
+  onSave: () => void;
+  
+}
 
-type Props = {
-  route: {
-    params?: {
-      sensor?: {
-        id: string;
-        nome: string;
-        status: string;
-        localizacao: string;
-      };
-    };
-  };
-  navigation: {
-    goBack: () => void;
-  };
-};
-
-export default function SensorFormScreen({ route, navigation }: Props) {
-  const editing = !!route.params?.sensor;
-  const [nome, setNome] = useState(route.params?.sensor?.nome || "");
-  const [status, setStatus] = useState(route.params?.sensor?.status || "");
-  const [localizacao, setLocalizacao] = useState(route.params?.sensor?.localizacao || "");
+export default function SensorFormScreen({ sensorId, onCancel, onSave }: Props) {
+  const editing = !!sensorId;
+  const [nome, setNome] = useState("");
+  const [status, setStatus] = useState("");
+  const [localizacao, setLocalizacao] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Se for edição, busca os dados do sensor
+  useEffect(() => {
+    if (editing && sensorId) {
+      setLoading(true);
+      getSensor(sensorId)
+        .then(res => {
+          setNome(res.data.nome || "");
+          setStatus(res.data.status || "");
+          setLocalizacao(res.data.localizacao || "");
+        })
+        .finally(() => setLoading(false));
+    }
+  }, [sensorId]);
 
   async function handleSave() {
     if (!nome || !status || !localizacao) {
@@ -38,15 +45,12 @@ export default function SensorFormScreen({ route, navigation }: Props) {
     }
     setLoading(true);
     try {
-      if (editing) {
-        if (route.params?.sensor?.id === undefined) {
-          throw new Error("Sensor ID is undefined.");
-        }
-        await updateSensor(Number(route.params.sensor.id), { nome, status });
+      if (editing && sensorId) {
+        await updateSensor(sensorId, { nome, status, localizacao });
       } else {
         await createSensor({ nome, status, localizacao });
       }
-      navigation.goBack();
+      onSave();
     } catch (e) {
       Alert.alert("Erro ao salvar.");
     } finally {
@@ -100,12 +104,22 @@ export default function SensorFormScreen({ route, navigation }: Props) {
           paddingVertical: 12,
           borderRadius: 16,
           alignItems: "center",
+          marginBottom: 16,
         }}
         onPress={handleSave}
       >
         <Text style={{ color: "#fff", fontWeight: "bold", fontSize: 18 }}>
           {editing ? "Salvar Alterações" : "Cadastrar"}
         </Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={{
+          paddingVertical: 10,
+          alignItems: "center",
+        }}
+        onPress={onCancel}
+      >
+        <Text style={{ color: "#1D4ED8", fontWeight: "bold", fontSize: 16 }}>Cancelar</Text>
       </TouchableOpacity>
     </View>
   );

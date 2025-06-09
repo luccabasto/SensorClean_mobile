@@ -1,17 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { Alert, Text, TouchableOpacity, View } from "react-native";
-import Loader from "../components/Loader";
-import { deleteSensor, getSensor } from "../services/api";
+import Loader from "../../components/Loader";
+import { deleteSensor, getSensor } from "../../services/api";
 
-export default function SensorDetailScreen({ route, navigation }) {
-  const { id } = route.params;
-  const [sensor, setSensor] = useState(null);
+interface Props {
+  sensorId: number;
+  onBack: () => void;
+  onEdit: (id: number) => void;
+}
+
+export default function SensorDetailScreen({ sensorId, onBack, onEdit }: Props) {
+  const [sensor, setSensor] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   async function loadSensor() {
     try {
       setLoading(true);
-      const res = await getSensor(id);
+      const res = await getSensor(sensorId);
       setSensor(res.data);
     } catch {
       setSensor(null);
@@ -30,8 +35,8 @@ export default function SensorDetailScreen({ route, navigation }) {
           text: "Excluir",
           style: "destructive",
           onPress: async () => {
-            await deleteSensor(id);
-            navigation.goBack();
+            await deleteSensor(sensorId);
+            onBack();
           },
         },
       ]
@@ -40,7 +45,7 @@ export default function SensorDetailScreen({ route, navigation }) {
 
   useEffect(() => {
     loadSensor();
-  }, [id]);
+  }, [sensorId]);
 
   if (loading) return <Loader />;
   if (!sensor) return <Text>Sensor não encontrado</Text>;
@@ -52,7 +57,7 @@ export default function SensorDetailScreen({ route, navigation }) {
       <Text className="mb-2">Localização: {sensor.localizacao}</Text>
       <TouchableOpacity
         className="bg-blue-700 py-3 rounded-xl my-4 items-center"
-        onPress={() => navigation.navigate("SensorForm", { sensor })}
+        onPress={() => onEdit(sensorId)}
       >
         <Text className="text-white font-bold text-lg">Editar</Text>
       </TouchableOpacity>
@@ -61,6 +66,12 @@ export default function SensorDetailScreen({ route, navigation }) {
         onPress={handleDelete}
       >
         <Text className="text-white font-bold text-lg">Excluir</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        className="mt-8 py-3 items-center"
+        onPress={onBack}
+      >
+        <Text className="text-blue-700 font-bold text-lg">Voltar</Text>
       </TouchableOpacity>
     </View>
   );

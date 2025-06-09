@@ -1,14 +1,18 @@
 import React, { useState } from "react";
 import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
 
-export default function LoginScreen({ navigation }) {
+interface Props {
+  onLogin: () => void;
+}
+
+export default function LoginScreen({ onLogin }: Props) {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
 
   function handleLogin() {
     // Simulação: login com qualquer email/senha
     if (email && senha) {
-      navigation.replace("Home");
+      onLogin();
     } else {
       Alert.alert("Erro", "Preencha e-mail e senha!");
     }
