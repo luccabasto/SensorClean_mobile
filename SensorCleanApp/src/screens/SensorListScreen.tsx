@@ -1,11 +1,29 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import Loader from "../components/Loader";
 import SensorCard from "../components/SensorCard";
 import { getSensores } from "../services/api";
 
-export default function SensorListScreen({ navigation }) {
-  const [sensores, setSensores] = useState([]);
+import { RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+
+type RootStackParamList = {
+  SensorForm: undefined;
+  Detalhes: { id: number };
+};
+type SensorListScreenNavigationProp = StackNavigationProp<RootStackParamList, 'SensorForm'>;
+type Props = {
+  navigation: SensorListScreenNavigationProp;
+  route: RouteProp<RootStackParamList, 'SensorForm'>;
+};
+type Sensor = {
+  id: number;
+  nome: string;
+  status: string;
+};
+
+export default function SensorListScreen({ navigation }: Props) {
+  const [sensores, setSensores] = useState<Sensor[]>([]);
   const [loading, setLoading] = useState(true);
 
   async function carregarSensores() {
@@ -20,20 +38,21 @@ export default function SensorListScreen({ navigation }) {
     }
   }
 
-  useEffect(() => {
-    const focus = navigation.addListener("focus", carregarSensores);
-    return focus;
-  }, [navigation]);
-
   if (loading) return <Loader />;
 
   return (
-    <View className="flex-1 bg-gray-50 p-4">
+    <View style={{ flex: 1, backgroundColor: "#F9FAFB", padding: 16 }}>
       <TouchableOpacity
-        className="bg-blue-700 py-3 rounded-xl mb-4 items-center"
+        style={{
+          backgroundColor: "#1D4ED8",
+          paddingVertical: 12,
+          borderRadius: 16,
+          marginBottom: 16,
+          alignItems: "center"
+        }}
         onPress={() => navigation.navigate("SensorForm")}
       >
-        <Text className="text-white font-bold text-lg">Novo Sensor</Text>
+        <Text style={{ color: "#fff", fontWeight: "bold", fontSize: 18 }}>Novo Sensor</Text>
       </TouchableOpacity>
       <FlatList
         data={sensores}
@@ -44,7 +63,7 @@ export default function SensorListScreen({ navigation }) {
             onPress={() => navigation.navigate("Detalhes", { id: item.id })}
           />
         )}
-        ListEmptyComponent={<Text className="text-gray-400 mt-8">Nenhum sensor cadastrado.</Text>}
+        ListEmptyComponent={<Text style={{ color: "#9CA3AF", marginTop: 32 }}>Nenhum sensor cadastrado.</Text>}
       />
     </View>
   );

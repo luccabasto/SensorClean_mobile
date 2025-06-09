@@ -1,9 +1,16 @@
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
-import { createSensor, updateSensor } from "../services/api";
+import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
 import Loader from "../components/Loader";
+import { createSensor, updateSensor } from "../services/api";
 
-export default function SensorFormScreen({ route, navigation }) {
+type RootStackParamList = {
+  SensorFormScreen: { sensor?: { id: string; nome: string; status: string; localizacao: string } };
+};
+
+type Props = NativeStackScreenProps<RootStackParamList, 'SensorFormScreen'>;
+
+export default function SensorFormScreen({ route, navigation }: Props) {
   const editing = !!route.params?.sensor;
   const [nome, setNome] = useState(route.params?.sensor?.nome || "");
   const [status, setStatus] = useState(route.params?.sensor?.status || "");
@@ -33,33 +40,53 @@ export default function SensorFormScreen({ route, navigation }) {
   if (loading) return <Loader />;
 
   return (
-    <View className="flex-1 bg-white p-6">
-      <Text className="text-2xl font-bold mb-6">
+    <View style={{ flex: 1, backgroundColor: "#fff", padding: 24 }}>
+      <Text style={{ fontSize: 24, fontWeight: "bold", marginBottom: 24 }}>
         {editing ? "Editar Sensor" : "Novo Sensor"}
       </Text>
       <TextInput
-        className="border-b border-gray-300 mb-6 py-2"
+        style={{
+          borderBottomWidth: 1,
+          borderBottomColor: "#D1D5DB",
+          marginBottom: 24,
+          paddingVertical: 8,
+        }}
         placeholder="Nome"
         value={nome}
         onChangeText={setNome}
       />
       <TextInput
-        className="border-b border-gray-300 mb-6 py-2"
+        style={{
+          borderBottomWidth: 1,
+          borderBottomColor: "#D1D5DB",
+          marginBottom: 24,
+          paddingVertical: 8,
+        }}
         placeholder="Status"
         value={status}
         onChangeText={setStatus}
       />
       <TextInput
-        className="border-b border-gray-300 mb-8 py-2"
+        style={{
+          borderBottomWidth: 1,
+          borderBottomColor: "#D1D5DB",
+          marginBottom: 32,
+          paddingVertical: 8,
+        }}
         placeholder="Localização"
         value={localizacao}
         onChangeText={setLocalizacao}
       />
       <TouchableOpacity
-        className="bg-blue-700 py-3 rounded-xl items-center"
+        style={{
+          backgroundColor: "#1D4ED8",
+          paddingVertical: 12,
+          borderRadius: 16,
+          alignItems: "center",
+        }}
         onPress={handleSave}
       >
-        <Text className="text-white font-bold text-lg">
+        <Text style={{ color: "#fff", fontWeight: "bold", fontSize: 18 }}>
           {editing ? "Salvar Alterações" : "Cadastrar"}
         </Text>
       </TouchableOpacity>
