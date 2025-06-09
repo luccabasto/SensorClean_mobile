@@ -1,25 +1,25 @@
+import { StackNavigationProp } from '@react-navigation/stack';
 import React, { useState } from "react";
 import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import Loader from "../components/Loader";
 import SensorCard from "../components/SensorCard";
 import { getSensores } from "../services/api";
 
-import { RouteProp } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-
 type RootStackParamList = {
   SensorForm: undefined;
   Detalhes: { id: number };
 };
+
 type SensorListScreenNavigationProp = StackNavigationProp<RootStackParamList, 'SensorForm'>;
-type Props = {
-  navigation: SensorListScreenNavigationProp;
-  route: RouteProp<RootStackParamList, 'SensorForm'>;
-};
+
 type Sensor = {
   id: number;
   nome: string;
   status: string;
+};
+
+type Props = {
+  navigation: SensorListScreenNavigationProp;
 };
 
 export default function SensorListScreen({ navigation }: Props) {

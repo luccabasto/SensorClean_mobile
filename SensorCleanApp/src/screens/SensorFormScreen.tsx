@@ -1,14 +1,28 @@
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useState } from "react";
 import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
 import Loader from "../components/Loader";
 import { createSensor, updateSensor } from "../services/api";
 
+
 type RootStackParamList = {
   SensorFormScreen: { sensor?: { id: string; nome: string; status: string; localizacao: string } };
 };
 
-type Props = NativeStackScreenProps<RootStackParamList, 'SensorFormScreen'>;
+type Props = {
+  route: {
+    params?: {
+      sensor?: {
+        id: string;
+        nome: string;
+        status: string;
+        localizacao: string;
+      };
+    };
+  };
+  navigation: {
+    goBack: () => void;
+  };
+};
 
 export default function SensorFormScreen({ route, navigation }: Props) {
   const editing = !!route.params?.sensor;
@@ -25,7 +39,10 @@ export default function SensorFormScreen({ route, navigation }: Props) {
     setLoading(true);
     try {
       if (editing) {
-        await updateSensor(route.params.sensor.id, { nome, status, localizacao });
+        if (route.params?.sensor?.id === undefined) {
+          throw new Error("Sensor ID is undefined.");
+        }
+        await updateSensor(Number(route.params.sensor.id), { nome, status });
       } else {
         await createSensor({ nome, status, localizacao });
       }
