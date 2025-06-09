@@ -1,0 +1,6 @@
+{
+  "sensores": [
+    { "id": 1, "nome": "Sensor 1", "status": "Ativo", "localizacao": "Sala 1" },
+    { "id": 2, "nome": "Sensor 2", "status": "Inativo", "localizacao": "Sala 2" }
+  ]
+}
